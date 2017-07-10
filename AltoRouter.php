@@ -223,11 +223,11 @@ class AltoRouter
             if ($route === '*') {
                 // * wildcard (matches all)
                 $match = true;
-            } elseif (isset($route[0]) && $route[0] === '@') {
+            } else if (isset($route[0]) && $route[0] === '@') {
                 // @ regex delimiter
                 $pattern = '`' . substr($route, 1) . '`u';
                 $match = preg_match($pattern, $requestUrl, $params) === 1;
-            } elseif (($position = strpos($route, '[')) === false) {
+            } else if (($position = strpos($route, '[')) === false) {
                 // No params in url, do string comparison
                 $match = strcmp($requestUrl, $route) === 0;
             } else {
@@ -240,7 +240,6 @@ class AltoRouter
             }
 
             if ($match) {
-
                 if ($params) {
                     foreach ($params as $key => $value) {
                         if (is_numeric($key)) {
