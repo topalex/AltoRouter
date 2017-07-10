@@ -36,6 +36,11 @@ class AltoRouter
     );
 
     /**
+     * @var string Name of current route
+     */
+    protected $currentRoute = '';
+
+    /**
      * Create router in one call from config.
      *
      * @param array $routes
@@ -98,6 +103,17 @@ class AltoRouter
     public function addMatchTypes($matchTypes)
     {
         $this->matchTypes = array_merge($this->matchTypes, $matchTypes);
+    }
+
+    /**
+     * Check if $routeName is current route
+     *
+     * @param string $routeName route name
+     * @return bool true if $routeName is current route, false otherwise
+     */
+    public function isCurrentRoute($routeName)
+    {
+        return $this->currentRoute === $routeName;
     }
 
     /**
@@ -182,6 +198,7 @@ class AltoRouter
     {
 
         $params = array();
+        $this->currentRoute = '';
         $match = false;
 
         // set Request Url if it isn't passed as parameter
@@ -236,6 +253,8 @@ class AltoRouter
                         if (is_numeric($key)) unset($params[$key]);
                     }
                 }
+
+                $this->currentRoute = $name;
 
                 return array(
                     'target' => $target,
