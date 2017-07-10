@@ -47,7 +47,7 @@ class AltoRouter
      * @param string $basePath
      * @param array $matchTypes
      */
-    public function __construct($routes = array(), $basePath = '', $matchTypes = array())
+    public function __construct($routes = array(), $basePath = '', array $matchTypes = array())
     {
         $this->addRoutes($routes);
         $this->setBasePath($basePath);
@@ -90,7 +90,7 @@ class AltoRouter
      * Set the base path.
      * Useful if you are running your application from a subdirectory.
      */
-    public function setBasePath($basePath)
+    public function setBasePath($basePath = '')
     {
         $this->basePath = $basePath;
     }
@@ -100,7 +100,7 @@ class AltoRouter
      *
      * @param array $matchTypes The key is the name and the value is the regex.
      */
-    public function addMatchTypes($matchTypes)
+    public function addMatchTypes(array $matchTypes = array())
     {
         $this->matchTypes = array_merge($this->matchTypes, $matchTypes);
     }
@@ -127,19 +127,15 @@ class AltoRouter
      */
     public function map($method, $route, $target, $name = null)
     {
-
         $this->routes[] = array($method, $route, $target, $name);
 
-        if ($name) {
+        if (!is_null($name)) {
             if (isset($this->namedRoutes[$name])) {
-                throw new Exception("Can not redeclare route '{$name}'");
+                throw new Exception('Can not redeclare route "' . $name . '".');
             } else {
                 $this->namedRoutes[$name] = $route;
             }
-
         }
-
-        return;
     }
 
     /**
@@ -154,10 +150,9 @@ class AltoRouter
      */
     public function generate($routeName, array $params = array())
     {
-
         // Check if named route exists
         if (!isset($this->namedRoutes[$routeName])) {
-            throw new Exception("Route '{$routeName}' does not exist.");
+            throw new Exception('Route "' . $routeName . '" does not exist.');
         }
 
         // Replace named parameters
@@ -167,7 +162,6 @@ class AltoRouter
         $url = $this->basePath . $route;
 
         if (preg_match_all('`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`', $route, $matches, PREG_SET_ORDER)) {
-
             foreach ($matches as $match) {
                 list($block, $pre, $type, $param, $optional) = $match;
 
@@ -177,12 +171,10 @@ class AltoRouter
 
                 if (isset($params[$param])) {
                     $url = str_replace($block, $params[$param], $url);
-                } elseif ($optional) {
+                } else if ($optional) {
                     $url = str_replace($pre . $block, '', $url);
                 }
             }
-
-
         }
 
         return $url;
@@ -196,13 +188,11 @@ class AltoRouter
      */
     public function match($requestUrl = null, $requestMethod = null)
     {
-
         $params = array();
         $this->currentRoute = '';
-        $match = false;
 
         // set Request Url if it isn't passed as parameter
-        if ($requestUrl === null) {
+        if (is_null($requestUrl)) {
             $requestUrl = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
         }
 
@@ -215,7 +205,7 @@ class AltoRouter
         }
 
         // set Request Method if it isn't passed as a parameter
-        if ($requestMethod === null) {
+        if (is_null($requestMethod)) {
             $requestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         }
 
@@ -225,7 +215,9 @@ class AltoRouter
             $method_match = (stripos($methods, $requestMethod) !== false);
 
             // Method did not match, continue to next route.
-            if (!$method_match) continue;
+            if (!$method_match) {
+                continue;
+            }
 
             if ($route === '*') {
                 // * wildcard (matches all)
@@ -250,7 +242,9 @@ class AltoRouter
 
                 if ($params) {
                     foreach ($params as $key => $value) {
-                        if (is_numeric($key)) unset($params[$key]);
+                        if (is_numeric($key)) {
+                            unset($params[$key]);
+                        }
                     }
                 }
 
@@ -263,6 +257,7 @@ class AltoRouter
                 );
             }
         }
+
         return false;
     }
 
@@ -272,7 +267,6 @@ class AltoRouter
     private function compileRoute($route)
     {
         if (preg_match_all('`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`', $route, $matches, PREG_SET_ORDER)) {
-
             $matchTypes = $this->matchTypes;
             foreach ($matches as $match) {
                 list($block, $pre, $type, $param, $optional) = $match;
@@ -295,8 +289,8 @@ class AltoRouter
 
                 $route = str_replace($block, $pattern, $route);
             }
-
         }
+
         return "`^$route$`u";
     }
 }
