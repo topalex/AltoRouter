@@ -43,7 +43,7 @@ class AltoRouter
     /**
      * Create router in one call from config.
      *
-     * @param array $routes
+     * @param array|Traversable $routes
      * @param string $basePath
      * @param array $matchTypes
      */
@@ -71,7 +71,7 @@ class AltoRouter
      *      array($method, $route, $target, $name)
      *   );
      *
-     * @param array $routes
+     * @param array|Traversable $routes
      * @return void
      * @author Koen Punt
      * @throws Exception
@@ -89,6 +89,7 @@ class AltoRouter
     /**
      * Set the base path.
      * Useful if you are running your application from a subdirectory.
+     * @param $basePath
      */
     public function setBasePath($basePath = '')
     {
@@ -263,6 +264,8 @@ class AltoRouter
 
     /**
      * Compile the regex for a given route (EXPENSIVE)
+     * @param $route
+     * @return string
      */
     private function compileRoute($route)
     {
